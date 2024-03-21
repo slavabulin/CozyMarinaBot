@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  cozymarinabot:
+    image: ${DOCKER_REGISTRY-}cozymarinabot
+    build:
+      context: .
+      dockerfile: CozyMarinaBot/Dockerfile
+    env_file:
+      - path: ./token.env
+        required: true # default

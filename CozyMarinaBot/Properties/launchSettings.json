@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CozyMarinaBot": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
