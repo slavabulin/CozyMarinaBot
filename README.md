@@ -2,7 +2,7 @@
 
 ## About
 
-This example demonstrates simple Telegram Bot using long polling 
+Telegram Bot using long polling 
 ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)).
 
 This example utilize [Worker Service](https://docs.microsoft.com/en-us/dotnet/core/extensions/workers)
@@ -45,9 +45,6 @@ environment variable that holds bot token:
   "TokenName": "{ENV_VARIABLE_CONTAINING_BOT_TOKEN}"
 }
 ```
-
-Watch [Configuration in .NET 6](https://www.youtube.com/watch?v=6Fg54CEBVno&t=170s) talk for deep dive into .NET Configuration.
-
 
 ## Run Bot As Windows Service
 
