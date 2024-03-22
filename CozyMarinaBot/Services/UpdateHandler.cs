@@ -1,3 +1,4 @@
+﻿using CozyMarinaBot.DAL.Repositories;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -12,7 +13,6 @@ public class UpdateHandler : IUpdateHandler
     private readonly ITelegramBotClient _botClient;
     private readonly ILogger<UpdateHandler> _logger;
     private static bool _gameStarted = false;
-    private static int _wordIndex;
 
     public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger)
     {
@@ -57,8 +57,10 @@ public class UpdateHandler : IUpdateHandler
             "/inline_mode"     => StartInlineQuery(_botClient, message, cancellationToken),
             "/throw"           => FailingHandler(_botClient, message, cancellationToken),
             "/echo"            => Echo(_botClient, message, cancellationToken),
-            "/start"           => StartGame(_botClient, message, cancellationToken),
-            "/stop"            => StopGame(_botClient, message, cancellationToken),
+            "/start" => StartGame(_botClient, message, cancellationToken),
+            "/stop" => StopGame(_botClient, message, cancellationToken),
+            //"/start"           => StopGame(_botClient, message, cancellationToken),
+            //"/stop"            => StartGame(_botClient, message, cancellationToken),
             _                  => Echo(_botClient, message, cancellationToken)
             //_                  => Usage(_botClient, message, cancellationToken)
         };
@@ -106,7 +108,7 @@ public class UpdateHandler : IUpdateHandler
             ReplyKeyboardMarkup replyKeyboardMarkup = new(
                 new[]
                 {
-                        new KeyboardButton[] { "1.1", "1.2" },
+                        ["1.1", "1.2"],
                         new KeyboardButton[] { "2.1", "2.2" },
                 })
             {
@@ -186,10 +188,6 @@ public class UpdateHandler : IUpdateHandler
         static async Task<Message> Echo(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             var messageText = $"You say - {message.Text}";
-            if(_gameStarted)
-            {
-                messageText = (message.Text.ToLower() == CozyMarinaBot.Files.Dictionary.Words[_wordIndex].ToLower()).ToString();
-            }
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
                 text: messageText,
@@ -199,12 +197,11 @@ public class UpdateHandler : IUpdateHandler
 
         static async Task<Message> StartGame(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
-            Random rnd = new Random();
-            _wordIndex = rnd.Next(CozyMarinaBot.Files.Dictionary.Words.Length);
+            var text = await WordsRepo.GetRandomWordAsync();
             _gameStarted = true;
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: CozyMarinaBot.Files.Dictionary.Words[_wordIndex],
+                text : text,
                 replyMarkup: new ReplyKeyboardRemove(),
                 cancellationToken: cancellationToken);
         }
@@ -261,13 +258,13 @@ public class UpdateHandler : IUpdateHandler
     {
         _logger.LogInformation("Received inline query from: {InlineQueryFromId}", inlineQuery.From.Id);
 
-        InlineQueryResult[] results = {
+        InlineQueryResult[] results = [
             // displayed result
             new InlineQueryResultArticle(
                 id: "1",
                 title: "TgBots",
                 inputMessageContent: new InputTextMessageContent("hello"))
-        };
+        ];
 
         await _botClient.AnswerInlineQueryAsync(
             inlineQueryId: inlineQuery.Id,

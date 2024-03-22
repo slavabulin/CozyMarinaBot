@@ -1,3 +1,4 @@
+using CozyMarinaBot.DAL;
 using Telegram.Bot;
 using Telegram.Bot.Services;
 
@@ -25,6 +26,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<UpdateHandler>();
         services.AddScoped<ReceiverService>();
         services.AddHostedService<PollingService>();
+        services.AddScoped<Context>();
+
     })
     .Build();
 

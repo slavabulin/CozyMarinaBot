@@ -47,12 +47,3 @@ environment variable that holds bot token:
 }
 ```
 
-## Run Bot As Windows Service
-
-Follow [Create a Windows Service using `BackgroundService`](https://docs.microsoft.com/en-us/dotnet/core/extensions/windows-service)
-article to host your bot as a Windows Service.
-
-## Run Bot Daemon On Linux
-
-Follow [.NET Core and systemd](https://devblogs.microsoft.com/dotnet/net-core-and-systemd/) blog post to run your
-bot as a Linux `systemd` daemon.
