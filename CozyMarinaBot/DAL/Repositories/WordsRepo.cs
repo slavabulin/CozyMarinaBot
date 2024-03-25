@@ -25,7 +25,6 @@ namespace CozyMarinaBot.DAL.Repositories
                 _logger.LogError(ex.Message);
                 throw;
             }
-            
         }
         public async Task<string> GetRandomWordAsync()
         {

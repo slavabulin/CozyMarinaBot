@@ -1,10 +1,10 @@
-﻿using CozyMarinaBot;
-using CozyMarinaBot.DAL.Services;
+﻿using CozyMarinaBot.DAL.Services;
+using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Telegram.Bot.Services;
+namespace CozyMarinaBot.Services;
 
 internal class UpdateHandler : IUpdateHandler
 {
@@ -12,10 +12,8 @@ internal class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IWordsService _wordService;
     private readonly IUsersService _userService;
-    private static string _secretWord = String.Empty;
-    private static long _gameHost;
-    private static bool _gameIsStarted;
-    private static bool _wordIsChosen;
+
+    private Dictionary<long, ChatData> _chatData;
 
     public UpdateHandler(ITelegramBotClient botClient, IWordsService wordService, IUsersService userService, ILogger<UpdateHandler> logger)
     {
@@ -23,6 +21,7 @@ internal class UpdateHandler : IUpdateHandler
         _logger = logger;
         _wordService = wordService;
         _userService = userService;
+        _chatData = new Dictionary<long, ChatData>();
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
@@ -70,30 +69,39 @@ internal class UpdateHandler : IUpdateHandler
 
     async Task<Message> CheckAnswer(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        if (_gameIsStarted
+        var id = message.Chat.Id;
+        if (!_chatData.ContainsKey(id)) return message;
+
+        if (_chatData[id].GameIsStarted
             && !string.IsNullOrWhiteSpace(message?.Text)
-            && message?.Text.ToLower() == _secretWord.ToLower())
+            && message?.Text.ToLower() == _chatData[id].SecretWord.ToLower())
         {
-            _wordIsChosen = false;
+            _chatData[id].WordIsChosen = false;
             //save user's score
             var user = message?.From?.ToDalUser(message.Chat.Id);
             await _userService.IncrementUsersScoreAsync(user, cancellationToken);
 
             //change game's host
-            _gameHost = message.From.Id;
+            _chatData[id].HostId = message.From.Id;
 
             //show word button
-            _gameIsStarted = false;
+            _chatData[id].GameIsStarted = false;
             return await StartGame(botClient, message, cancellationToken);
         }
         return new Message();
     }
     async Task<Message> StartGame(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        if (!_gameIsStarted)
+        var id = message.Chat.Id;
+        if (!_chatData.ContainsKey(message.Chat.Id))
         {
-            _gameIsStarted = true;
-            _gameHost = message?.From?.Id ?? 0;
+            _chatData.Add(message.Chat.Id, new ChatData { HostId = message?.From?.Id, GameIsStarted = false });
+        }
+
+        if (!_chatData[id].GameIsStarted)
+        {
+            _chatData[id].GameIsStarted = true;
+            _chatData[id].HostId = message?.From?.Id ?? 0;
 
             InlineKeyboardMarkup inlineKeyboard = new(
                 new[]{
@@ -103,7 +111,7 @@ internal class UpdateHandler : IUpdateHandler
                 });
 
             return await botClient.SendTextMessageAsync(
-                chatId: message?.Chat?.Id ?? 0,
+                chatId: id,
                 text: "Press button to get your word",
                 replyMarkup: inlineKeyboard,
                 cancellationToken: cancellationToken);
@@ -113,9 +121,12 @@ internal class UpdateHandler : IUpdateHandler
 
     async Task<Message> StopGame(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        _gameIsStarted = false;
+        var id = message.Chat.Id;
+        if (!_chatData.ContainsKey(message.Chat.Id)) return message;
+        _chatData[id].GameIsStarted = false;
+
         return await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id,
+            chatId: id,
             text: "game stoped",
             replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: cancellationToken);
@@ -132,18 +143,20 @@ internal class UpdateHandler : IUpdateHandler
     private async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
+        var id = callbackQuery.Message.Chat.Id;
+        if (!_chatData.ContainsKey(id)) return;
 
-        if(callbackQuery?.From.Id == _gameHost)
+        if(callbackQuery?.From.Id == _chatData[id].HostId)
         { 
-            if (!_wordIsChosen)
+            if (!_chatData[id].WordIsChosen)
             {
-                _wordIsChosen = true;
-                _secretWord = await _wordService.GetWordAsync();
+                _chatData[id].WordIsChosen = true;
+                _chatData[id].SecretWord = await _wordService.GetWordAsync();
             }
 
             await _botClient.AnswerCallbackQueryAsync(
             callbackQueryId: callbackQuery.Id,
-            text: $"Your word is: {_secretWord}",
+            text: $"Your word is: {_chatData[id].SecretWord}",
             cancellationToken: cancellationToken);
         }
         else

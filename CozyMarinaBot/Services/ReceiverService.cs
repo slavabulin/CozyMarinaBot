@@ -1,6 +1,7 @@
+using Telegram.Bot;
 using Telegram.Bot.Abstract;
 
-namespace Telegram.Bot.Services;
+namespace CozyMarinaBot.Services;
 
 // Compose Receiver and UpdateHandler implementation
 internal class ReceiverService : ReceiverServiceBase<UpdateHandler>

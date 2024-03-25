@@ -1,6 +1,6 @@
 using Telegram.Bot.Abstract;
 
-namespace Telegram.Bot.Services;
+namespace CozyMarinaBot.Services;
 
 // Compose Polling and ReceiverService implementations
 internal class PollingService : PollingServiceBase<ReceiverService>
