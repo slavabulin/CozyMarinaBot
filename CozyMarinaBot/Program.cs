@@ -1,4 +1,6 @@
 using CozyMarinaBot.DAL;
+using CozyMarinaBot.DAL.Repositories;
+using CozyMarinaBot.DAL.Services;
 using Telegram.Bot;
 using Telegram.Bot.Services;
 
@@ -27,6 +29,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<ReceiverService>();
         services.AddHostedService<PollingService>();
         services.AddScoped<Context>();
+        services.AddScoped<IWordsService, WordsService>();
+        services.AddScoped<IWordsRepo, WordsRepo>();
+        services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<IUsersRepo, UsersRepo>();
+        //services.AddDbContextPool<IContext, Context>();//??do i need it??
 
     })
     .Build();

@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace CozyMarinaBot.DAL.Models
 {
+    [PrimaryKey(nameof(Id))]
     internal class Word
     {
-        [Key]
         public int Id { get; set; }
         public string Text { get; set; }
     }

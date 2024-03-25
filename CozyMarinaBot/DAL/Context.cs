@@ -6,7 +6,6 @@ namespace CozyMarinaBot.DAL
     internal class Context : DbContext
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<Score> Scores { get; set; }
         public DbSet<Word> Words { get; set; }
         public Context(DbContextOptions<Context> options)
             : base(options)

@@ -3,7 +3,7 @@ using Telegram.Bot.Abstract;
 namespace Telegram.Bot.Services;
 
 // Compose Receiver and UpdateHandler implementation
-public class ReceiverService : ReceiverServiceBase<UpdateHandler>
+internal class ReceiverService : ReceiverServiceBase<UpdateHandler>
 {
     public ReceiverService(
         ITelegramBotClient botClient,

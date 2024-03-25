@@ -6,5 +6,5 @@ public class BotConfiguration
 {
     public static readonly string Configuration = "BotConfiguration";
 
-    public string TokenName { get; set; } = "";
+    public string TokenName { get; set; } = String.Empty;
 }
