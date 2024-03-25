@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 #env file with bot token
 *token.env
+
+#db file
+*.db
