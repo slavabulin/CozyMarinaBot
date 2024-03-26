@@ -16,7 +16,7 @@ RUN dotnet build "./CozyMarinaBot.csproj" -c $BUILD_CONFIGURATION -o /app/build
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./CozyMarinaBot.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-RUN chmod 666 CozyMarinaBot.db
+RUN chmod -R 666 ./db/CozyMarinaBot.db
 
 FROM base AS final
 WORKDIR /app

@@ -17,7 +17,7 @@ namespace CozyMarinaBot.DAL
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Filename=./db/CozyMarinaBot.db");
+            optionsBuilder.UseSqlite("Filename=/app/db/CozyMarinaBot.db");
         }
     }
 }
