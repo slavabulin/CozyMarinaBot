@@ -7,5 +7,6 @@ services:
       context: .
       dockerfile: CozyMarinaBot/Dockerfile
     env_file:
-      - path: ./token.env
-        required: true # default
+      'token.env'
+    volumes:
+      - /db:/db

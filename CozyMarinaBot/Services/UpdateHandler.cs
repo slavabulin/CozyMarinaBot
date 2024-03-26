@@ -15,11 +15,11 @@ internal class UpdateHandler : IUpdateHandler
     private readonly IBearService _bearService;
     private Dictionary<long, ChatData> _chatData;
 
-
+    private const string _successMsg = " угадал! Красава!";
     private const string _greetingsMsg = "Жми медведа!";
     private const string _gameStoppedMsg = "Игра остановлена.";
     private const string _secretWordMsg = "Загаданное слово: ";
-    private const string _wrongHostMsg = "Извини, ты не ведущий.";
+    private const string _wrongHostMsg = "Не подглядывай, ты не ведущий!";
 
     public UpdateHandler(ITelegramBotClient botClient, IWordsService wordService, IUsersService userService, IBearService bearService, ILogger<UpdateHandler> logger)
     {
@@ -96,7 +96,7 @@ internal class UpdateHandler : IUpdateHandler
 
             await botClient.SendTextMessageAsync(
                 chatId: id,
-                text: $"{message.From.Username} угадал!",
+                text: $"{message.From.Username}{_successMsg}",
                 cancellationToken: cancellationToken);
             return await StartGame(botClient, message, cancellationToken);
         }
