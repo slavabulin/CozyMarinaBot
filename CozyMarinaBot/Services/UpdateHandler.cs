@@ -12,15 +12,22 @@ internal class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IWordsService _wordService;
     private readonly IUsersService _userService;
-
+    private readonly IBearService _bearService;
     private Dictionary<long, ChatData> _chatData;
 
-    public UpdateHandler(ITelegramBotClient botClient, IWordsService wordService, IUsersService userService, ILogger<UpdateHandler> logger)
+
+    private const string _greetingsMsg = "Жми медведа!";
+    private const string _gameStoppedMsg = "Игра остановлена.";
+    private const string _secretWordMsg = "Загаданное слово: ";
+    private const string _wrongHostMsg = "Извини, ты не ведущий.";
+
+    public UpdateHandler(ITelegramBotClient botClient, IWordsService wordService, IUsersService userService, IBearService bearService, ILogger<UpdateHandler> logger)
     {
         _botClient = botClient;
         _logger = logger;
         _wordService = wordService;
         _userService = userService;
+        _bearService = bearService;
         _chatData = new Dictionary<long, ChatData>();
     }
 
@@ -86,6 +93,11 @@ internal class UpdateHandler : IUpdateHandler
 
             //show word button
             _chatData[id].GameIsStarted = false;
+
+            await botClient.SendTextMessageAsync(
+                chatId: id,
+                text: $"{message.From.Username} угадал!",
+                cancellationToken: cancellationToken);
             return await StartGame(botClient, message, cancellationToken);
         }
         return new Message();
@@ -106,13 +118,13 @@ internal class UpdateHandler : IUpdateHandler
             InlineKeyboardMarkup inlineKeyboard = new(
                 new[]{
                         new []{
-                            InlineKeyboardButton.WithCallbackData("ʕᴥ• ʔ", "11")
+                            InlineKeyboardButton.WithCallbackData(_bearService.GetNewBear(), "11")
                         }
                 });
 
             return await botClient.SendTextMessageAsync(
                 chatId: id,
-                text: "Press button to get your word",
+                text: _greetingsMsg,
                 replyMarkup: inlineKeyboard,
                 cancellationToken: cancellationToken);
         }
@@ -124,10 +136,12 @@ internal class UpdateHandler : IUpdateHandler
         var id = message.Chat.Id;
         if (!_chatData.ContainsKey(message.Chat.Id)) return message;
         _chatData[id].GameIsStarted = false;
+        _chatData[id].WordIsChosen = true;
+        _chatData[id].SecretWord = await _wordService.GetWordAsync();
 
         return await botClient.SendTextMessageAsync(
             chatId: id,
-            text: "game stoped",
+            text: _gameStoppedMsg,
             replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: cancellationToken);
     }
@@ -156,14 +170,14 @@ internal class UpdateHandler : IUpdateHandler
 
             await _botClient.AnswerCallbackQueryAsync(
             callbackQueryId: callbackQuery.Id,
-            text: $"Your word is: {_chatData[id].SecretWord}",
+            text: $"{_secretWordMsg}{_chatData[id].SecretWord}",
             cancellationToken: cancellationToken);
         }
         else
         {
             await _botClient.AnswerCallbackQueryAsync(
             callbackQueryId: callbackQuery.Id,
-            text: $"Sorry, you are not a host.",
+            text: _wrongHostMsg,
             cancellationToken: cancellationToken);
         }
     }

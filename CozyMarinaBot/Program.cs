@@ -28,6 +28,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<UpdateHandler>();
         services.AddScoped<ReceiverService>();
         services.AddHostedService<PollingService>();
+        services.AddScoped<IBearService, BearService>();
         services.AddScoped<Context>();
         services.AddScoped<IWordsService, WordsService>();
         services.AddScoped<IWordsRepo, WordsRepo>();
