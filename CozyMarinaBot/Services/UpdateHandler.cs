@@ -89,15 +89,17 @@ internal class UpdateHandler : IUpdateHandler
             await _userService.IncrementUsersScoreAsync(user, cancellationToken);
 
             //change game's host
-            _chatData[id].HostId = message.From.Id;
+            _chatData[id].HostId = message?.From?.Id;
 
             //show word button
             _chatData[id].GameIsStarted = false;
 
-            await botClient.SendTextMessageAsync(
-                chatId: id,
-                text: $"{message.From.Username}{_successMsg}",
+            await botClient.SendAnimationAsync(
+                chatId: message.Chat.Id,
+                animation: Helper.GetGifStream(),
+                caption: $"{message.From.Username}{_successMsg}",
                 cancellationToken: cancellationToken);
+
             return await StartGame(botClient, message, cancellationToken);
         }
         return new Message();
