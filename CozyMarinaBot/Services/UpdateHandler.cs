@@ -15,9 +15,11 @@ internal class UpdateHandler : IUpdateHandler
     private readonly IBearService _bearService;
     private Dictionary<long, ChatData> _chatData;
 
-    private const string _successMsg = " угадал! Красава!";
-    private const string _greetingsMsg = "Жми медведа!";
+    private const string _alreadyMsg = "Игра уже запущена.";
     private const string _gameStoppedMsg = "Игра остановлена.";
+    private const string _greetingsMsg = "Жми медведа!";
+    private const string _hostNotAllowedToAnswerMsg = "Ведущий не может отвечать!";
+    private const string _successMsg = " иди обниму! Красава!";
     private const string _secretWordMsg = "Загаданное слово: ";
     private const string _wrongHostMsg = "Не подглядывай, ты не ведущий!";
 
@@ -81,8 +83,15 @@ internal class UpdateHandler : IUpdateHandler
 
         if (_chatData[id].GameIsStarted
             && !string.IsNullOrWhiteSpace(message?.Text)
-            && message?.Text.ToLower() == _chatData[id].SecretWord.ToLower())
+            && message.Text.Equals(_chatData[id].SecretWord, StringComparison.OrdinalIgnoreCase))
         {
+            if (message.From.Id == _chatData[id].HostId)
+            {
+                return await botClient.SendTextMessageAsync(
+                    chatId: id,
+                    text: _hostNotAllowedToAnswerMsg,
+                    cancellationToken: cancellationToken);
+            }
             _chatData[id].WordIsChosen = false;
             //save user's score
             var user = message?.From?.ToDalUser(message.Chat.Id);
@@ -97,7 +106,7 @@ internal class UpdateHandler : IUpdateHandler
             await botClient.SendAnimationAsync(
                 chatId: message.Chat.Id,
                 animation: Helper.GetGifStream(),
-                caption: $"{message.From.Username}{_successMsg}",
+                caption: $"{message.From.Username ?? message.From.FirstName}{_successMsg}",
                 cancellationToken: cancellationToken);
 
             return await StartGame(botClient, message, cancellationToken);
@@ -130,7 +139,10 @@ internal class UpdateHandler : IUpdateHandler
                 replyMarkup: inlineKeyboard,
                 cancellationToken: cancellationToken);
         }
-        return new Message();
+        return await botClient.SendTextMessageAsync(
+            chatId: id,
+            text: _alreadyMsg,
+            cancellationToken: cancellationToken);
     }
 
     async Task<Message> StopGame(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
