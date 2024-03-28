@@ -83,7 +83,7 @@ internal class UpdateHandler : IUpdateHandler
 
         if (_chatData[id].GameIsStarted
             && !string.IsNullOrWhiteSpace(message?.Text)
-            && message.Text.Equals(_chatData[id].SecretWord, StringComparison.OrdinalIgnoreCase))
+            && message?.Text.ToLower() == _chatData[id].SecretWord.ToLower())
         {
             if (message.From.Id == _chatData[id].HostId)
             {
