@@ -36,14 +36,13 @@ Make sure that your .csproj contains these items (versions may vary):
 
 ## Configuration
 
-You should provide your Telegram Bot token with one of the available providers.
-Read futher on [Configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-6.0).
-We provide plaecehoder for bot configuration in `appsettings*.json`. You have to replace {ENV_VARIABLE_CONTAINING_BOT_TOKEN} with actual
+Since telegram bot is containerized you need to pass bot token in it as environment variable.
+ You can set variable name in `appsettings*.json`  file in BotConfiguration section. in order to do this you have to replace `{ENV_VARIABLE_CONTAINING_BOT_TOKEN}` with actual
 environment variable that holds bot token:
-
 ```json
 "BotConfiguration": {
   "TokenName": "{ENV_VARIABLE_CONTAINING_BOT_TOKEN}"
 }
 ```
+Its value should be stored in token.env file in name=value format. This file is ignored by docker and git.
 
