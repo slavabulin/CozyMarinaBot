@@ -4,3 +4,5 @@ services:
   cozymarinabot:
     environment:
       - DOTNET_ENVIRONMENT=Development
+    env_file:
+      'dev-token.env'

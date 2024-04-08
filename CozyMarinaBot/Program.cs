@@ -1,3 +1,4 @@
+using CozyMarinaBot.BLL;
 using CozyMarinaBot.DAL;
 using CozyMarinaBot.DAL.Repositories;
 using CozyMarinaBot.DAL.Services;
@@ -34,6 +35,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IWordsRepo, WordsRepo>();
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IUsersRepo, UsersRepo>();
+        services.AddScoped<IBlService, BlService>();
     })
     .Build();
 
