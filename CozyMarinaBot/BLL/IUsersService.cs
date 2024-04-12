@@ -1,6 +1,6 @@
 ﻿using CozyMarinaBot.DAL.Models;
 
-namespace CozyMarinaBot.DAL.Services
+namespace CozyMarinaBot.BLL
 {
     internal interface IUsersService
     {

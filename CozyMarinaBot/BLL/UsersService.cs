@@ -2,7 +2,7 @@
 using CozyMarinaBot.DAL.Repositories;
 using System.Text;
 
-namespace CozyMarinaBot.DAL.Services
+namespace CozyMarinaBot.BLL
 {
     internal class UsersService : IUsersService
     {
@@ -35,7 +35,7 @@ namespace CozyMarinaBot.DAL.Services
             var sb = new StringBuilder();
             foreach (var stat in statArr)
             {
-                sb.AppendLine($"{stat.Name} - {stat.Score}\n");
+                sb.AppendLine($"{stat.Name} - {stat.Score}");
             }
             return sb.ToString();
         }

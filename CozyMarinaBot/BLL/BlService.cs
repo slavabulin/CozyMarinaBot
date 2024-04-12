@@ -1,5 +1,4 @@
-﻿using CozyMarinaBot.DAL.Services;
-using CozyMarinaBot.Services;
+﻿using CozyMarinaBot.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -22,6 +21,11 @@ namespace CozyMarinaBot.BLL
         private const string _successMsg = " иди обниму! Красава!";
         private const string _secretWordMsg = "Загаданное слово: ";
         private const string _wrongHostMsg = "Не подглядывай, ты не ведущий!";
+        private const string _usageMsg = "Usage:\n" +
+                                 "/start       - старт игры\n" +
+                                 "/stop        - остановка игры\n" +
+                                 "/stat        - показать статистику игры\n" +
+                                 "/?           - показать эту подсказку\n";
 
         public BlService(ITelegramBotClient botClient, IWordsService wordService, IUsersService userService,
                          IBearService bearService, ILogger<BlService> logger)
@@ -106,6 +110,7 @@ namespace CozyMarinaBot.BLL
             {
                 _chatData[id].GameIsStarted = true;
                 _chatData[id].HostId = message?.From?.Id ?? 0;
+                _chatData[id].SecretWord = await _wordService.GetWordAsync();
 
                 InlineKeyboardMarkup inlineKeyboard = new(
                     new[]{
@@ -131,7 +136,6 @@ namespace CozyMarinaBot.BLL
             if (!_chatData.ContainsKey(message.Chat.Id)) return message;
             _chatData[id].GameIsStarted = false;
             _chatData[id].WordIsChosen = true;
-            _chatData[id].SecretWord = await _wordService.GetWordAsync();
 
             return await botClient.SendTextMessageAsync(
                 chatId: id,
@@ -149,15 +153,9 @@ namespace CozyMarinaBot.BLL
         }
         private async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
-            const string usage = "Usage:\n" +
-                                 "/start       - starts the game\n" +
-                                 "/stop        - stops the game\n" +
-                                 "/stat        - shows statistics\n" +
-                                 "/?           - shows this help\n";
-
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: usage,
+                text: _usageMsg,
                 replyMarkup: new ReplyKeyboardRemove(),
                 cancellationToken: cancellationToken);
         }

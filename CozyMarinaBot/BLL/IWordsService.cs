@@ -1,5 +1,4 @@
-﻿
-namespace CozyMarinaBot.DAL.Services
+﻿namespace CozyMarinaBot.BLL
 {
     internal interface IWordsService
     {

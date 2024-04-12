@@ -1,6 +1,6 @@
 ﻿using CozyMarinaBot.DAL.Repositories;
 
-namespace CozyMarinaBot.DAL.Services
+namespace CozyMarinaBot.BLL
 {
     internal class WordsService : IWordsService
     {

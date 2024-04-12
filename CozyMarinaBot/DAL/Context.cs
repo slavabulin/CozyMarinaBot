@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CozyMarinaBot.DAL
 {
-    internal class Context : DbContext
+    internal sealed class Context : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Word> Words { get; set; }
